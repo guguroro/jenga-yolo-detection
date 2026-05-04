@@ -5,12 +5,15 @@
 ```
 jenga_detection/
 ├── README.md                ← 本文件
-├── detect_jenga.py          ← 实时检测（主程序）
+├── detect_jenga.py          ← 实时检测（主程序，输出边界框）
+├── detect_pose.py           ← 检测积木并绘制中心点及方向箭头（分割模型）
+├── predict_jenga.py         ← 批量推理测试集，保存结果图片
 ├── train_jenga.py           ← 重新训练模型
 ├── capture_real_frames.py   ← 采集新训练图片
 ├── v4l_color_probe.py       ← 摄像头自动选取工具（被 detect 调用）
 └── models/
-    └── jenga_best.pt        ← 已训练好的模型权重
+    ├── jenga_best.pt        ← 检测模型权重（YOLOv8s，输出矩形框）
+    └── jenga_seg_best.pt    ← 分割模型权重（YOLOv8n-seg，输出像素级mask + 位置/角度）
 ```
 
 数据集位置（相对项目根目录）：
@@ -19,6 +22,69 @@ dataset/data2/Jenga Detection.v1i.yolov8/
 ├── train/   (39 张)
 ├── valid/   (3 张)
 └── test/    (3 张)
+```
+
+---
+
+## 检测积木中心点及方向（分割模型）
+
+使用 `jenga_seg_best.pt` 对图片进行推理，自动提取每块积木的：
+- **中心坐标 (cx, cy)**：积木在图像中的像素位置
+- **旋转角度 θ**：积木长轴方向，范围 0°~180°
+- **尺寸**：长边 × 短边（像素）
+
+并在图上绘制**旋转矩形框 + 方向箭头 + 文字标注**。
+
+### 使用方法
+
+**1. 修改脚本中的路径（第 5~7 行）：**
+
+```python
+WEIGHTS   = "jenga_detection/models/jenga_seg_best.pt"  # 模型路径
+IMAGE_DIR = "你的图片文件夹路径"                          # 输入图片目录
+OUTPUT_DIR = "输出结果目录"                               # 结果保存位置
+```
+
+**2. 运行脚本：**
+
+```bash
+python jenga_detection/detect_pose.py
+```
+
+**3. 输出示例（终端）：**
+
+```
+==================================================
+图片: IMG_3836.jpg  →  检测到 7 块积木
+==================================================
+  积木 1:
+    中心坐标: (169.8, 1077.5) px
+    旋转角度: 109.2°
+    尺寸:     296.7 x 95.2 px
+  积木 2:
+    中心坐标: (397.8, 932.8) px
+    旋转角度: 141.5°
+    尺寸:     261.6 x 86.7 px
+  ...
+```
+
+结果图片会保存到 `OUTPUT_DIR`，每块积木标注有编号、坐标、角度，并用箭头指示长轴方向。
+
+### 模型性能（验证集）
+
+| 指标 | 框检测（Box） | 分割 Mask |
+|------|:---:|:---:|
+| 精确率 P | 96.6% | 94.2% |
+| 召回率 R | 96.0% | 95.7% |
+| **mAP50** | **99.1%** | **97.7%** |
+| mAP50-95 | 94.7% | 89.8% |
+
+训练集：209 张，验证集：59 张，测试集：32 张。数据来源：[Roboflow Jenga Detection Dataset](https://universe.roboflow.com/louis-2ukmv/jenga-piece-detection-9di5c/dataset/1)
+
+### 依赖
+
+```bash
+pip install ultralytics opencv-python numpy
 ```
 
 ---
