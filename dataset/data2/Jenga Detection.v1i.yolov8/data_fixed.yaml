@@ -1,7 +1,0 @@
-path: /home/zhenguo/jenga_project/yolo_aruco/dataset/data2/Jenga Detection.v1i.yolov8
-train: train/images
-val:   valid/images
-test:  test/images
-
-nc: 1
-names: ['Jenga']

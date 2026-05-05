@@ -1,0 +1,6 @@
+train: F:/LUND course/Project in control/Proj_control_yolo/train_merged/images
+val:   F:/LUND course/Project in control/Proj_control_yolo/valid/images
+test:  F:/LUND course/Project in control/Proj_control_yolo/test/images
+
+nc: 1
+names: ['jenga']

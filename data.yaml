@@ -1,0 +1,15 @@
+train: F:/LUND course/Project in control/Proj_control_yolo/train/images
+val: F:/LUND course/Project in control/Proj_control_yolo/valid/images
+test: F:/LUND course/Project in control/Proj_control_yolo/test/images
+
+
+
+nc: 1
+names: [ 'jenga']
+
+roboflow:
+  workspace: louis-2ukmv
+  project: jenga-piece-detection-9di5c
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/louis-2ukmv/jenga-piece-detection-9di5c/dataset/1
